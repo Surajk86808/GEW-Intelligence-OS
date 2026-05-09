@@ -1,0 +1,6 @@
+ffmpeg-python
+librosa
+numpy
+rich
+scikit-learn
+transformers

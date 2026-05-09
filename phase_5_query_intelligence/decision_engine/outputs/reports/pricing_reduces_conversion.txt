@@ -1,0 +1,15 @@
+DECISION INTELLIGENCE REPORT: pricing_reduces_conversion
+Query: Which objections most reduce conversion and what evidence shows pricing objections reducing conversion?
+Confidence: 0.0
+
+[ANSWER]
+Insufficient evidence to answer the query confidently.
+
+[FACTS]
+No facts returned.
+
+[STRATEGIC INSIGHTS]
+No strategic insights returned.
+
+[CITATIONS]
+No citations returned.

@@ -1,0 +1,15 @@
+DECISION INTELLIGENCE REPORT: best_pricing_handlers
+Query: Which salesperson handles pricing objections best?
+Confidence: 0.0
+
+[ANSWER]
+Insufficient evidence to answer the query confidently.
+
+[FACTS]
+No facts returned.
+
+[STRATEGIC INSIGHTS]
+No strategic insights returned.
+
+[CITATIONS]
+No citations returned.

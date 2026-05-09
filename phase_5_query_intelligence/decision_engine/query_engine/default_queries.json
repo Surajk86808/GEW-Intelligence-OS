@@ -1,0 +1,18 @@
+[
+  {
+    "name": "pricing_reduces_conversion",
+    "query": "Which objections most reduce conversion and what evidence shows pricing objections reducing conversion?"
+  },
+  {
+    "name": "best_pricing_handlers",
+    "query": "Which salesperson handles pricing objections best?"
+  },
+  {
+    "name": "frustrated_pricing_customers",
+    "query": "Show frustrated customers discussing pricing."
+  },
+  {
+    "name": "campaign_high_intent_patterns",
+    "query": "Which campaigns generate high intent conversations and what evidence supports that?"
+  }
+]

@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# Application Data & Logs
+audio/
+transcripts/
+output/
+logs/
+mapped_calls/
+structured_output/
+input/
+data/
+
+# API & Frontend Temporary Files
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+frontend/dist/
+node_modules/
+
+# Media & Temporary Files
+*.download
+*.mp3
+*.wav
+*.xlsx
+*.csv
+*.json
+!PHASES_OVERVIEW.md
+!PHASES_OVERVIEW.md
+!package.json
+!tsconfig.json
+!*.json.example
+!default_queries.json
+!vector_index.json
+!evidence_lookup.json
+!call_index.json
+!customer_index.json
+!objection_index.json
+!salesperson_index.json
+!memory_manifest.json
+!chunk_store.json
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,12 @@
+faster-whisper
+ffmpeg-python
+google-genai
+librosa
+numpy
+openpyxl
+pandas
+requests
+rich
+scikit-learn
+tenacity
+transformers
