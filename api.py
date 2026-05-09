@@ -10,8 +10,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
-from google import genai
-from google.genai import types
+from shared.llm_client import LLMClient, get_llm_client
+from shared.settings import QUERY_MODEL, GEMINI_API_KEY
 from contextlib import asynccontextmanager
 
 # Add project root to sys.path
@@ -23,22 +23,19 @@ from phase_5_query_intelligence.decision_engine.retrieval_engine import Retrieva
 from phase_5_query_intelligence.intent_classifier import IntentClassifier
 from phase_5_query_intelligence.prompt_builder import PromptBuilder
 from phase_5_query_intelligence.synthesis_engine import SynthesisEngine
-from phase_5_query_intelligence.decision_engine.config import GEMINI_API_KEY
 
 # Global instances
 retrieval_engine: RetrievalEngine = None # type: ignore
 classifier: IntentClassifier = None # type: ignore
 prompt_builder: PromptBuilder = None # type: ignore
 synthesizer: SynthesisEngine = None # type: ignore
-client: genai.Client = None # type: ignore
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global retrieval_engine, classifier, prompt_builder, synthesizer, client
+    global retrieval_engine, classifier, prompt_builder, synthesizer
     
-    # Configure Gemini
-    if GEMINI_API_KEY:
-        client = genai.Client(api_key=GEMINI_API_KEY)
+    # Initialize Gemini Client
+    get_llm_client()
     
     vector_index_path = PROJECT_ROOT / "phase_4_knowledge_memory" / "memory" / "vector_store" / "vector_index.json"
     evidence_lookup_path = PROJECT_ROOT / "phase_4_knowledge_memory" / "memory" / "outputs" / "debug" / "evidence_lookup.json"
@@ -72,17 +69,14 @@ async def health():
     return {"status": "ok"}
 
 def call_gemini(system_prompt: str, user_prompt: str) -> str:
-    if not client:
-        return "Gemini client not initialized"
-        
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=user_prompt,
-        config=types.GenerateContentConfig(
+    try:
+        return LLMClient.generate_content(
+            model=QUERY_MODEL,
+            prompt=user_prompt,
             system_instruction=system_prompt
         )
-    )
-    return (response.text or "").strip()
+    except Exception as e:
+        return f"Error calling Gemini: {str(e)}"
 
 @app.post("/ask")
 async def ask(request: AskRequest):

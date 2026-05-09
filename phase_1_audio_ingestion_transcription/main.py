@@ -11,12 +11,12 @@ from ingestion.main import main as ingestion_main
 from transcription.main import main as transcription_main
 
 
-def main() -> int:
-    result = ingestion_main()
+def main(argv: list[str] | None = None) -> int:
+    result = ingestion_main(argv)
     if result != 0:
         return result
-    return transcription_main()
+    return transcription_main(argv)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

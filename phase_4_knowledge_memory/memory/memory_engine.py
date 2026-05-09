@@ -21,9 +21,6 @@ from shared.json_utils import read_json
 class MemoryEngine:
     def load_inputs(self) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
         local_inputs = self._load_local_phase_inputs()
-        if local_inputs is not None:
-            return local_inputs
-
         transcripts = self._read_first(TRANSCRIPT_MANIFEST_CANDIDATES, [])
         direct_records = self._load_direct_enriched_records()
         if not transcripts and direct_records:
@@ -44,7 +41,15 @@ class MemoryEngine:
             if isinstance(item, dict) and self._normalize_call_id(item)
         }
 
-        return transcripts, list(reasoning_by_call.values()), emotions, calls
+        if local_inputs is None:
+            return transcripts, list(reasoning_by_call.values()), emotions, calls
+
+        local_transcripts, local_reasoning, local_emotions, local_calls = local_inputs
+        transcripts = self._merge_entries(transcripts, local_transcripts)
+        reasoning = self._merge_entries(list(reasoning_by_call.values()), local_reasoning)
+        emotions = self._merge_entries(emotions, local_emotions)
+        calls = self._merge_entries(calls, local_calls)
+        return transcripts, reasoning, emotions, calls
 
     def load_lead_profile(self, lead_number: str) -> dict[str, Any]:
         for directory in LEAD_PROFILE_DIR_CANDIDATES:
@@ -68,11 +73,13 @@ class MemoryEngine:
             payload = {}
 
         call_id = self._normalize_call_id(payload, fallback=path.stem)
+        document_text = self._extract_indexable_text(payload)
         transcript_data = {
             "call_id": call_id,
-            "transcript": str(payload.get("transcript", "")).strip(),
+            "transcript": document_text,
             "counselor_name": str(payload.get("counselor_name", "")).strip(),
             "call_duration_seconds": payload.get("call_duration_seconds", 0),
+            "source_kind": "transcript" if str(payload.get("transcript", "")).strip() else "structured_document",
         }
         emotion_data = {
             "call_id": call_id,
@@ -106,7 +113,11 @@ class MemoryEngine:
     def _load_local_phase_inputs(
         self,
     ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]] | None:
-        unified_paths = sorted(INPUTS_TRANSCRIPTS_DIR.glob("CALL_*.json"))
+        unified_paths = [
+            path
+            for path in sorted(INPUTS_TRANSCRIPTS_DIR.glob("*.json"))
+            if path.name not in {"transcript_manifest.json", "reasoning_manifest.json", "emotion_manifest.json", "call_manifest.json"}
+        ]
         if not unified_paths:
             return None
 
@@ -137,6 +148,7 @@ class MemoryEngine:
                     "transcript_text": transcript_data.get("transcript", ""),
                     "counselor_name": transcript_data.get("counselor_name", ""),
                     "call_duration_seconds": transcript_data.get("call_duration_seconds", 0),
+                    "source_kind": transcript_data.get("source_kind", "transcript"),
                 }
             )
             emotions.append(
@@ -175,6 +187,18 @@ class MemoryEngine:
 
         return transcripts, reasoning, emotions, calls
 
+    def _merge_entries(self, manifest_entries: list[dict[str, Any]], local_entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        merged: dict[str, dict[str, Any]] = {}
+        for entry in manifest_entries:
+            call_id = self._normalize_call_id(entry)
+            if call_id:
+                merged[call_id] = entry
+        for entry in local_entries:
+            call_id = self._normalize_call_id(entry)
+            if call_id:
+                merged[call_id] = entry
+        return list(merged.values())
+
     def _merge_payloads(self, base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
         merged = dict(base)
         if not isinstance(override, dict):
@@ -205,7 +229,7 @@ class MemoryEngine:
         entries = []
         for item in direct_records:
             call_id = self._normalize_call_id(item)
-            transcript_text = str(item.get("transcript", "")).strip()
+            transcript_text = self._extract_indexable_text(item)
             if not call_id or not transcript_text:
                 continue
             entries.append(
@@ -214,6 +238,7 @@ class MemoryEngine:
                     "source_path": str(item.get("_source_path", "")),
                     "output_path": str(item.get("_source_path", "")),
                     "transcript_text": transcript_text,
+                    "source_kind": "transcript" if str(item.get("transcript", "")).strip() else "structured_document",
                 }
             )
         return entries
@@ -255,3 +280,39 @@ class MemoryEngine:
         if source_path:
             return Path(source_path).stem.replace(".mp3", "")
         return fallback.replace(".mp3", "").strip()
+
+    def _extract_indexable_text(self, payload: dict[str, Any]) -> str:
+        transcript_text = str(payload.get("transcript", "")).strip()
+        if transcript_text:
+            return transcript_text
+
+        lines = self._flatten_payload(payload)
+        return "\n".join(line for line in lines if line.strip())
+
+    def _flatten_payload(self, value: Any, prefix: str = "") -> list[str]:
+        if isinstance(value, dict):
+            lines: list[str] = []
+            for key, item in value.items():
+                label = key.replace("_", " ").strip()
+                next_prefix = f"{prefix} {label}".strip()
+                nested = self._flatten_payload(item, next_prefix)
+                if nested:
+                    lines.extend(nested)
+                elif item not in ({}, [], "", None):
+                    lines.append(f"{next_prefix}: {item}".strip())
+            return lines
+
+        if isinstance(value, list):
+            lines = []
+            for index, item in enumerate(value, start=1):
+                item_prefix = f"{prefix} item {index}".strip()
+                nested = self._flatten_payload(item, item_prefix)
+                if nested:
+                    lines.extend(nested)
+                elif item not in ("", None, {}, []):
+                    lines.append(f"{item_prefix}: {item}".strip())
+            return lines
+
+        if value in ("", None):
+            return []
+        return [f"{prefix}: {value}".strip(": ").strip()]

@@ -4,9 +4,11 @@ import re
 from pathlib import Path
 from typing import Any
 
-from transcription.engines.transcript_normalizer import normalize_segments
-from transcription.engines.transcript_parser import parse_transcript_block
-from transcription.engines.transcript_structurer import build_structured_transcript
+from shared.transcript_utils import (
+    normalize_segments,
+    parse_transcript_block,
+    build_structured_transcript,
+)
 from enrichment.config import CALL_MANIFEST_CANDIDATES, LEAD_PROFILES_DIR_CANDIDATES
 from shared.json_utils import read_json
 

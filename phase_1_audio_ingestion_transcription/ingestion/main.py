@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 
 from ingestion.config import (
@@ -29,7 +30,11 @@ from shared.schema_utils import CallManifestEntry
 from shared.workbook_utils import load_workbook_sheets, save_updated_workbook
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 1 Ingestion")
+    parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    args = parser.parse_args(argv)
+
     ensure_phase_directories()
     terminal = TerminalUI(RUNTIME_LOG_PATH)
     terminal.rule("GEW Intelligence OS - Phase 1 Ingestion", style="bold magenta")
@@ -42,6 +47,38 @@ def main() -> int:
     except Exception as exc:
         terminal.exception("PHASE_1", f"Failed to initialize ingestion: {exc}", exc)
         return 1
+
+    if args.call_id:
+        terminal.info(f"Filtering for specific call ID: {args.call_id}")
+        mapped_df = mapped_df[mapped_df["call_id"].str.strip() == args.call_id]
+        if mapped_df.empty:
+            terminal.warning(f"No match found for call ID: {args.call_id} in the Excel sheet.")
+            
+            # AUDIO-FIRST DISCOVERY: Check if the audio file exists even if not in Excel
+            from ingestion.engines.audio_downloader import get_cached_audio_path
+            cached_audio = get_cached_audio_path(args.call_id)
+            
+            if cached_audio.exists():
+                terminal.success(f"Found loose audio file: {cached_audio}")
+                manifest_entries.append(
+                    CallManifestEntry(
+                        call_id=args.call_id,
+                        lead_number="UNKNOWN",
+                        recording_url="",
+                        audio_path=str(cached_audio),
+                        duration="0",
+                        owner="UNKNOWN",
+                        campaign="UNKNOWN",
+                        walkin_status="UNKNOWN",
+                    ).to_dict()
+                )
+                # Write manifest directly and exit phase successfully
+                write_json(CALL_MANIFEST_PATH, manifest_entries)
+                terminal.success("Phase 1 completed using loose audio discovery.")
+                return 0
+            else:
+                terminal.error(f"Could not find audio for {args.call_id} in CRM or audio folder.")
+                return 1
 
     terminal.info(f"Matched {len(mapped_df.index)} call(s) across {len(lead_profiles)} lead(s).")
     write_csv_rows(UNMATCHED_LOG_PATH, UNMATCHED_LOG_HEADERS, unmatched_rows)

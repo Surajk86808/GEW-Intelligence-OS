@@ -40,6 +40,15 @@ class TerminalUI:
     def info(self, message: str, *, echo_to_console: bool = True) -> None:
         self._log("INFO", message, "bold blue", echo_to_console=echo_to_console)
 
+    def ask(self, question: str, choices: list[str] | None = None, default: str | None = None) -> str:
+        from rich.prompt import Prompt
+        if self.quiet or self.minimal_ui or not self.log_to_console:
+            return default or (choices[0] if choices else "")
+        
+        # Ensure we are not inside a progress bar when asking
+        self._append_log_line(f"{self._now()} | ASK | {question} | choices={choices}")
+        return Prompt.ask(f"[bold yellow]{question}[/bold yellow]", choices=choices, default=default, console=self.console)
+
     def success(self, message: str) -> None:
         self._log("SUCCESS", message, "bold green")
 
@@ -79,7 +88,7 @@ class TerminalUI:
         border_style = "green" if status.upper() == "SUCCESS" else "red"
         if self.log_to_console and not self.quiet:
             if self.minimal_ui:
-                self.console.print(f"[{status}] {title}: " + ", ".join(f"{key}={value}" for key, value in rows))
+                self.console.print(Table.grid(expand=False).add_row(f"[{status}] {title}: " + ", ".join(f"{key}={value}" for key, value in rows)))
             else:
                 self.console.print(Panel(table, title=title, border_style=border_style, expand=False))
         self._append_log_line(f"{self._now()} | {status.upper()} | {title} | " + " | ".join(f"{key}={value}" for key, value in rows))
@@ -126,19 +135,19 @@ def initialize_csv_log(log_path: Path, headers: list[str], overwrite: bool = Fal
     if log_path.exists() and not overwrite:
         return
     with log_path.open("w", newline="", encoding="utf-8") as handle:
-        csv.DictWriter(handle, fieldnames=headers).writeheader()
+        csv.DictWriter(handle, fieldnames=headers, extrasaction="ignore").writeheader()
 
 
 def append_csv_row(log_path: Path, headers: list[str], row: dict[str, str]) -> None:
     initialize_csv_log(log_path, headers)
     with log_path.open("a", newline="", encoding="utf-8") as handle:
-        csv.DictWriter(handle, fieldnames=headers).writerow(row)
+        csv.DictWriter(handle, fieldnames=headers, extrasaction="ignore").writerow(row)
 
 
 def write_csv_rows(log_path: Path, headers: list[str], rows: Iterable[dict[str, str]]) -> None:
     initialize_csv_log(log_path, headers, overwrite=True)
     with log_path.open("a", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=headers)
+        writer = csv.DictWriter(handle, fieldnames=headers, extrasaction="ignore")
         for row in rows:
             writer.writerow(row)
 

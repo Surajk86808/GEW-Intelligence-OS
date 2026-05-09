@@ -14,7 +14,7 @@ class RetrievalEngine:
 
     def retrieve(self, query: str, filters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
         query_vector = self.embedding_engine.embed_text(query)
-        raw_results = self.vector_engine.search(query_vector, TOP_K_RETRIEVAL * 3, filters=filters)
+        raw_results = self.vector_engine.search(query_vector, TOP_K_RETRIEVAL * 3, filters=filters, query_text=query)
         reranked = self._rerank(query, raw_results)
         return [item for item in reranked if item["score"] >= MIN_RELEVANCE_SCORE][:TOP_K_RETRIEVAL]
 

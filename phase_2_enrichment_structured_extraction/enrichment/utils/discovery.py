@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from transcription.engines.transcript_splitter import split_combined_transcript
+from shared.transcript_utils import split_combined_transcript
 from enrichment.config import (
     AUDIO_SOURCE_CANDIDATES,
     COMBINED_FALLBACK_DIR,

@@ -57,29 +57,24 @@ DIRECT_ENRICHED_TRANSCRIPT_DIR_CANDIDATES = [
 
 TRANSCRIPT_MANIFEST_CANDIDATES = [
     LOCAL_TRANSCRIPT_MANIFEST_PATH,
-    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "phase_2_transcription" / "outputs" / "metadata" / "transcript_manifest.json",
-    REPO_ROOT / "phase_2_transcription" / "outputs" / "metadata" / "transcript_manifest.json",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "transcription" / "outputs" / "metadata" / "transcript_manifest.json",
 ]
 REASONING_MANIFEST_CANDIDATES = [
     LOCAL_REASONING_MANIFEST_PATH,
     PROJECT_DIR / "outputs" / "metadata" / "reasoning_manifest.json",
-    REPO_ROOT / "phase_3_ai_reasoning" / "phase_4_ai_reasoning" / "outputs" / "metadata" / "reasoning_manifest.json",
-    REPO_ROOT / "phase_4_ai_reasoning" / "outputs" / "metadata" / "reasoning_manifest.json",
+    REPO_ROOT / "phase_3_ai_reasoning" / "reasoning" / "outputs" / "metadata" / "reasoning_manifest.json",
 ]
 EMOTION_MANIFEST_CANDIDATES = [
     LOCAL_EMOTION_MANIFEST_PATH,
-    REPO_ROOT / "phase_2_enrichment_structured_extraction" / "phase_3_voice_intelligence" / "outputs" / "metadata" / "emotion_manifest.json",
-    REPO_ROOT / "phase_3_voice_intelligence" / "outputs" / "metadata" / "emotion_manifest.json",
+    REPO_ROOT / "phase_2_enrichment_structured_extraction" / "enrichment" / "outputs" / "metadata" / "emotion_manifest.json",
 ]
 CALL_MANIFEST_CANDIDATES = [
     LOCAL_CALL_MANIFEST_PATH,
-    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "phase_1_map_and_download" / "mapped_calls" / "call_manifest.json",
-    REPO_ROOT / "phase_1_map_and_download" / "mapped_calls" / "call_manifest.json",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "call_manifest.json",
 ]
 LEAD_PROFILE_DIR_CANDIDATES = [
     INPUTS_CRM_DIR / "lead_profiles",
-    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "phase_1_map_and_download" / "mapped_calls" / "lead_profiles",
-    REPO_ROOT / "phase_1_map_and_download" / "mapped_calls" / "lead_profiles",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "lead_profiles",
 ]
 
 CHUNK_MAX_LINES = get_env_int("PHASE_5_CHUNK_MAX_LINES", 8)
@@ -90,9 +85,10 @@ TOP_K_RETRIEVAL = get_env_int("PHASE_5_TOP_K_RETRIEVAL", 10)
 QUERY_TOP_K = get_env_int("PHASE_5_QUERY_TOP_K", 8)
 MIN_RELEVANCE_SCORE = get_env_float("PHASE_5_MIN_RELEVANCE_SCORE", 0.08)
 EMBEDDING_PROVIDER = get_env("PHASE_5_EMBEDDING_PROVIDER", "hashing").lower()
+ENABLE_VECTOR_EMBEDDING = get_env("PHASE_5_ENABLE_VECTOR_EMBEDDING", "true").lower() in {"1", "true", "yes"}
 ENABLE_HYBRID_KEYWORD_BOOST = get_env("PHASE_5_ENABLE_HYBRID_KEYWORD_BOOST", "true").lower() in {"1", "true", "yes"}
 QUERY_LLM_PROVIDER = get_env("PHASE_5_QUERY_LLM_PROVIDER", "gemini").lower()
-QUERY_LLM_MODEL = get_env("PHASE_5_QUERY_LLM_MODEL", "gemini-2.0-flash")
+QUERY_LLM_MODEL = get_env("PHASE_5_QUERY_LLM_MODEL", "gemini-2.5-flash")
 QUERY_LLM_TEMPERATURE = get_env_float("PHASE_5_QUERY_LLM_TEMPERATURE", 0.1)
 QUERY_MIN_CONFIDENCE = get_env_float("PHASE_5_QUERY_MIN_CONFIDENCE", 0.45)
 

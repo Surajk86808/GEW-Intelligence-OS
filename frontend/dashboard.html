@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEW Intelligence Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+    <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="dashboard.js" defer></script>
+</head>
+<body>
+    <div class="dashboard-shell">
+        <header class="topbar glass">
+            <div class="brand-block">
+                <div class="brand-mark">
+                    <span>GEW</span>
+                </div>
+                <div>
+                    <p class="eyebrow">AI-Powered Call Intelligence</p>
+                    <h1>Executive Analytics Dashboard</h1>
+                </div>
+            </div>
+
+            <nav class="top-nav">
+                <a class="nav-link active" href="dashboard.html">Dashboard</a>
+                <a class="nav-link" href="index.html">AI Chat Assistant</a>
+                <a class="assistant-cta" href="index.html">
+                    <i data-lucide="sparkles"></i>
+                    <span>Open AI Assistant</span>
+                </a>
+            </nav>
+        </header>
+
+        <main class="dashboard-main">
+            <section class="hero-panel glass reveal">
+                <div class="hero-copy">
+                    <p class="eyebrow">Operational Intelligence Layer</p>
+                    <h2>Premium visibility into counselor performance, funnel leakage, campaign ROI, and AI-driven actions.</h2>
+                    <p class="hero-description">
+                        Built for leadership reviews, sales ops cadence, and real-time business diagnosis across inbound call workflows.
+                    </p>
+                </div>
+
+                <div class="hero-side">
+                    <div class="status-pill" id="data-status">
+                        <span class="status-dot"></span>
+                        <span>Loading live intelligence feed</span>
+                    </div>
+                    <div class="meta-grid" id="report-meta"></div>
+                </div>
+            </section>
+
+            <section class="filters-panel glass reveal">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Future-Ready Controls</p>
+                        <h3>Dashboard Filters</h3>
+                    </div>
+                    <p class="section-copy">Prepared for expansion into live segments and drill-down navigation.</p>
+                </div>
+
+                <div class="filter-controls">
+                    <label class="filter-field">
+                        <span>Search entity</span>
+                        <input id="entity-search" type="text" placeholder="Search counselor, campaign, or centre">
+                    </label>
+                    <label class="filter-field">
+                        <span>Center ranking</span>
+                        <select id="center-sort">
+                            <option value="enrollment_rate_pct">Highest enrollment rate</option>
+                            <option value="enrolled">Most enrollments</option>
+                            <option value="total_leads">Most leads</option>
+                        </select>
+                    </label>
+                    <label class="filter-field filter-note">
+                        <span>Dataset mode</span>
+                        <div class="static-chip">Aggregate intelligence snapshot</div>
+                    </label>
+                </div>
+            </section>
+
+            <section class="section-block reveal">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Executive Overview</p>
+                        <h3>Business Health Snapshot</h3>
+                    </div>
+                </div>
+                <div class="kpi-grid" id="kpi-grid"></div>
+            </section>
+
+            <section class="two-column">
+                <div class="panel glass reveal">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Top 3 Performers</p>
+                            <h3>Counselor Leaderboard</h3>
+                        </div>
+                    </div>
+                    <div class="leaderboard" id="leaderboard"></div>
+                </div>
+
+                <div class="panel glass reveal">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Sales Funnel</p>
+                            <h3>Lead Journey Compression</h3>
+                        </div>
+                    </div>
+                    <div class="funnel-board" id="funnel-board"></div>
+                </div>
+            </section>
+
+            <section class="section-block reveal">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Campaign Intelligence</p>
+                        <h3>Performance and Conversion Efficiency</h3>
+                    </div>
+                </div>
+
+                <div class="campaign-layout">
+                    <div class="panel glass chart-panel">
+                        <canvas id="campaign-chart"></canvas>
+                    </div>
+                    <div class="stack-column">
+                        <div class="panel glass" id="campaign-highlights"></div>
+                        <div class="panel glass" id="campaign-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-block reveal">
+                <div class="section-heading">
+                    <div>
+                        <p class="eyebrow">Center Performance</p>
+                        <h3>Operational Conversion by Centre</h3>
+                    </div>
+                </div>
+                <div class="panel glass table-panel">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Centre</th>
+                                    <th>Leads</th>
+                                    <th>Enrollments</th>
+                                    <th>Walk-ins</th>
+                                    <th>Enrollment Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="centre-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="two-column">
+                <div class="panel glass reveal">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Risk Signals</p>
+                            <h3>Operational Warning Radar</h3>
+                        </div>
+                    </div>
+                    <div class="risk-grid" id="risk-grid"></div>
+                </div>
+
+                <div class="panel glass reveal">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Call Analytics</p>
+                            <h3>Volume and Duration Mix</h3>
+                        </div>
+                    </div>
+                    <div class="mini-chart-grid">
+                        <div class="mini-chart-card">
+                            <h4>Call Duration Distribution</h4>
+                            <canvas id="duration-chart"></canvas>
+                        </div>
+                        <div class="mini-chart-card">
+                            <h4>Inbound Volume by Counselor</h4>
+                            <canvas id="counselor-volume-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section-block reveal">
+                <div class="panel glass chart-panel large-chart">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Call Trend</p>
+                            <h3>Daily Inbound Volume</h3>
+                        </div>
+                    </div>
+                    <canvas id="daily-trend-chart"></canvas>
+                </div>
+            </section>
+
+            <section class="two-column insights-actions">
+                <div class="panel glass reveal">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">AI Business Insights</p>
+                            <h3>Executive Narrative</h3>
+                        </div>
+                    </div>
+                    <div class="insight-stream" id="insight-stream"></div>
+                </div>
+
+                <div class="panel glass reveal">
+                    <div class="panel-header">
+                        <div>
+                            <p class="eyebrow">Recommended Actions</p>
+                            <h3>Operational Action Queue</h3>
+                        </div>
+                    </div>
+                    <div class="action-stream" id="action-stream"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-card glass">
+            <div class="loading-ring"></div>
+            <h3>Loading intelligence dashboard</h3>
+            <p>Preparing analytics, rankings, risks, and recommendation layers.</p>
+        </div>
+    </div>
+
+    <template id="error-template">
+        <section class="error-state glass">
+            <div class="error-icon">
+                <i data-lucide="triangle-alert"></i>
+            </div>
+            <div>
+                <h2>Unable to load dashboard data</h2>
+                <p id="error-message"></p>
+            </div>
+        </section>
+    </template>
+</body>
+</html>

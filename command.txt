@@ -2,35 +2,37 @@ GEW Intelligence OS - Root Command Guide
 
 Use these commands from the project root: P:\Gew
 
-python main.py
-Runs Phase 1 only. This is the entry point for audio ingestion and transcription.
+python run_current_phases.py
+Runs the FULL pipeline (Phases 1-5) sequentially:
+1. CRM Mapping & Transcription
+2. Voice Intelligence (Acoustics/Emotion)
+3. AI Strategic Reasoning
+4. Knowledge Layer (Vector Indexing)
+5. Query Intelligence (Decision Engine)
 
-python -m phase_1_audio_ingestion_transcription.main
-Runs Phase 1 directly. It maps CRM/audio inputs and produces transcripts.
+python run_current_phases.py --call-id CALL_0006
+Runs the FULL pipeline for a single specific audio file only.
+
+python main.py
+Runs Phase 1: Ingestion & Transcription only.
 
 python -m phase_2_enrichment_structured_extraction.main
-Runs Phase 2. It enriches transcripts with speaker, silence, emotion, acoustic, and timeline analysis.
+Runs Phase 2: Voice Intelligence (Acoustics & Emotion enrichment).
 
 python -m phase_3_ai_reasoning.main
-Runs Phase 3. It performs AI reasoning, summaries, evidence extraction, and recommendation-style analysis.
+Runs Phase 3: AI Reasoning and Strategic analysis.
 
 python -m phase_4_knowledge_memory.main
-Runs Phase 4. It builds memory data such as chunks, embeddings, metadata, and vector index files.
+Runs Phase 4: Knowledge indexing and memory building.
 
-python -m phase_5_query_intelligence.main
-Runs Phase 5. It answers queries using the stored knowledge and generates evidence-backed results.
-
-python run_current_phases.py
-Runs the current active pipeline stages after architecture validation.
-Right now it runs:
-- Phase 4: Knowledge Memory
-- Phase 5: Query Intelligence
+python -m phase_5_query_intelligence.query_main --query "YOUR QUESTION"
+Runs a specific query against the processed knowledge base.
 
 python api.py
-Starts the FastAPI server on port 8000 and loads the vector index plus evidence lookup for question answering.
+Starts the FastAPI server on port 8000 for the web frontend or external integrations.
 
 run_background.bat
-Starts the pipeline in a minimized background window and writes logs for background processing.
+Starts the pipeline in a minimized background window.
 
 pip install -r requirements.txt
-Installs the main Python dependencies required by this project.
+Installs the necessary Python dependencies.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 import time
 from pathlib import Path
@@ -9,6 +10,7 @@ from .chunking_engine import ChunkingEngine
 from .config import (
     ANALYTICS_OUTPUT_DIR,
     DEBUG_OUTPUT_DIR,
+    ENABLE_VECTOR_EMBEDDING,
     MAX_BATCH_SIZE,
     MEMORY_MANIFEST_PATH,
     PROCESSING_LOG_HEADERS,
@@ -32,7 +34,11 @@ from shared.logging_utils import TerminalUI, append_csv_row
 from shared.schema_utils import PhaseOutputEntry
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 5 Knowledge Layer")
+    parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    args = parser.parse_args(argv)
+
     ensure_phase_directories()
     terminal = TerminalUI(RUNTIME_LOG_PATH)
     terminal.rule("GEW Intelligence OS - Phase 5 Knowledge Layer", style="bold white")
@@ -42,6 +48,13 @@ def main() -> int:
     if not transcripts:
         terminal.warning("No transcript inputs found. Nothing to index.")
         return 0
+
+    if args.call_id:
+        terminal.info(f"Filtering for specific call ID: {args.call_id}")
+        transcripts = [item for item in transcripts if _normalize_call_id(item.get("call_id", "")) == args.call_id]
+        if not transcripts:
+            terminal.warning(f"No match found for call ID: {args.call_id}")
+            return 0
 
     reasoning_by_call = {_normalize_call_id(item.get("call_id", "")): item for item in reasoning_entries if _normalize_call_id(item.get("call_id", ""))}
     emotions_by_call = {_normalize_call_id(item.get("call_id", "")): item for item in emotion_entries if _normalize_call_id(item.get("call_id", ""))}
@@ -74,7 +87,8 @@ def main() -> int:
                 emotion_path = _optional_path(emotion_entry.get("output_path", ""))
 
                 transcript_text = str(transcript_entry.get("transcript_text", "")).strip()
-                if not transcript_text and transcript_path and transcript_path.exists():
+                source_kind = str(transcript_entry.get("source_kind", "transcript")).strip() or "transcript"
+                if not transcript_text and source_kind == "transcript" and transcript_path and transcript_path.exists():
                     transcript_text = transcript_path.read_text(encoding="utf-8")
                 reasoning_payload = dict(reasoning_entry.get("payload", {})) if isinstance(reasoning_entry.get("payload"), dict) else {}
                 if not reasoning_payload and reasoning_path and reasoning_path.exists():
@@ -89,7 +103,7 @@ def main() -> int:
                 chunks = chunking_engine.chunk_conversation(call_id, transcript_text, phase3_payload, reasoning_payload, crm_context)
                 for chunk in chunks:
                     metadata = metadata_engine.build_chunk_metadata(chunk, crm_context, phase3_payload, reasoning_payload)
-                    vector = embedding_engine.embed_text(_embedding_payload(chunk, metadata, reasoning_payload))
+                    vector = embedding_engine.embed_text(_embedding_payload(chunk, metadata, reasoning_payload)) if ENABLE_VECTOR_EMBEDDING else []
                     vector_engine.upsert(chunk["chunk_id"], vector, metadata)
                     chunk_records.append(metadata)
                     evidence_lookup[chunk["chunk_id"]] = evidence_engine.build_evidence_record(chunk, metadata, reasoning_payload)
@@ -102,7 +116,7 @@ def main() -> int:
                         "call_id": call_id,
                         "status": "SUCCESS",
                         "chunk_count": str(len(chunks)),
-                        "vector_count": str(len(chunks)),
+                        "vector_count": str(len(chunks) if ENABLE_VECTOR_EMBEDDING else 0),
                         "error_message": "",
                         "processing_time_sec": str(processing_time),
                     },
@@ -173,7 +187,8 @@ def main() -> int:
         )
 
     write_json(RETRIEVAL_OUTPUT_DIR / "sample_retrieval_results.json", retrieval_results)
-    terminal.success("Phase 5 completed. Conversational memory, metadata indexes, and retrieval outputs are ready.")
+    mode_label = "vector + lexical retrieval" if ENABLE_VECTOR_EMBEDDING else "lexical-only retrieval"
+    terminal.success(f"Phase 5 completed. Memory, metadata indexes, and {mode_label} outputs are ready.")
     return 0
 
 

@@ -4561,5 +4561,14 @@
     "chunk_count": 1,
     "reasoning_path": "P:\\Gew\\phase_4_knowledge_memory\\memory\\inputs\\transcripts\\CALL_2048.json",
     "emotion_path": "P:\\Gew\\phase_4_knowledge_memory\\memory\\inputs\\transcripts\\CALL_2048.json"
+  },
+  {
+    "call_id": "gew_dashboard_insights",
+    "source_path": "P:\\Gew\\phase_4_knowledge_memory\\memory\\inputs\\transcripts\\gew_dashboard_insights.json",
+    "output_path": "",
+    "metadata_path": "",
+    "chunk_count": 42,
+    "reasoning_path": "P:\\Gew\\phase_4_knowledge_memory\\memory\\inputs\\transcripts\\gew_dashboard_insights.json",
+    "emotion_path": "P:\\Gew\\phase_4_knowledge_memory\\memory\\inputs\\transcripts\\gew_dashboard_insights.json"
   }
 ]

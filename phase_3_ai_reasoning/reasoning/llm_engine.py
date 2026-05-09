@@ -4,8 +4,11 @@ import json
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from reasoning.config import GEMINI_API_KEY, LLM_PROVIDER, LLM_TEMPERATURE, PRIMARY_LLM_MODEL
+from reasoning.config import LLM_PROVIDER, LLM_TEMPERATURE
+from shared.settings import REASONING_MODEL
+from shared.llm_client import LLMClient
 from shared.retry_utils import retry_on_transient_errors
+from google.genai import types
 
 
 @dataclass
@@ -26,29 +29,27 @@ class Provider(Protocol):
 
 class GeminiProvider:
     def __init__(self) -> None:
-        if not GEMINI_API_KEY:
-            raise RuntimeError("GEMINI_API_KEY is not configured")
-        from google import genai
-        from google.genai import types
-
-        self.client = genai.Client(api_key=GEMINI_API_KEY)
-        self.config = types.GenerateContentConfig(
-            temperature=LLM_TEMPERATURE,
-            response_mime_type="application/json",
-        )
-        self.model_name = PRIMARY_LLM_MODEL
+        self.client = LLMClient.get_client()
+        self.model_name = REASONING_MODEL
 
     @retry_on_transient_errors()
     def analyze(self, system_prompt: str, user_payload: str) -> LLMResponse:
-        from google.genai import types
+        config = types.GenerateContentConfig(
+            temperature=LLM_TEMPERATURE,
+            response_mime_type="application/json",
+            system_instruction=system_prompt
+        )
+        
         response = self.client.models.generate_content(
             model=self.model_name,
-            contents=f"{system_prompt}\n\n--- INPUT DATA ---\n{user_payload}",
-            config=self.config
+            contents=user_payload,
+            config=config
         )
+        
         response_text = (response.text or "").strip()
         if response_text.startswith("```json"):
             response_text = response_text.removeprefix("```json").removesuffix("```").strip()
+        
         try:
             payload = json.loads(response_text)
         except json.JSONDecodeError as exc:
@@ -58,6 +59,7 @@ class GeminiProvider:
         input_tokens = getattr(usage, "prompt_token_count", None) if usage else None
         output_tokens = getattr(usage, "candidates_token_count", None) if usage else None
         estimated_cost = _estimate_gemini_cost(input_tokens, output_tokens)
+        
         return LLMResponse(
             payload=payload,
             raw_text=response_text,

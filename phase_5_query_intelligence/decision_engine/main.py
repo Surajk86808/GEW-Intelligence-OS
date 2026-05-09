@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 import time
 from pathlib import Path
@@ -34,7 +35,11 @@ from shared.json_utils import read_json, write_json
 from shared.logging_utils import TerminalUI, append_csv_row
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 6 Decision Intelligence")
+    parser.add_argument("--call-id", type=str, help="Filter queries for a specific call ID.")
+    args = parser.parse_args(argv)
+
     ensure_phase_directories()
     terminal = TerminalUI(RUNTIME_LOG_PATH)
     terminal.rule("GEW Intelligence OS - Phase 6 Decision Intelligence", style="bold blue")
@@ -43,6 +48,9 @@ def main() -> int:
     evidence_lookup = _read_first(PHASE_5_EVIDENCE_LOOKUP_CANDIDATES, {})
     call_analytics = _read_first(PHASE_5_CALL_ANALYTICS_CANDIDATES, {})
     _ = _read_first(PHASE_5_CHUNK_STORE_CANDIDATES, [])
+
+    if args.call_id:
+        terminal.info(f"Context set for call ID: {args.call_id}")
 
     if not vector_index:
         terminal.warning("No Phase 5 vector index found. Nothing to query.")
@@ -68,12 +76,21 @@ def main() -> int:
         for item in queries:
             query_name = str(item.get("name", "query")).strip()
             query_text = str(item.get("query", "")).strip()
+            
+            # If call-id is provided, inject it into the query context if not present
+            if args.call_id and args.call_id not in query_text:
+                query_text = f"{query_text} (Context: {args.call_id})"
+                
             terminal.rule(f"QUERY {query_name}", style="bold blue")
             started_at = time.perf_counter()
 
             try:
                 parsed = query_parser.parse(query_name, query_text)
                 retrieved = retrieval_engine.retrieve(parsed.search_text, parsed.filters)
+                
+                if args.call_id:
+                    retrieved = [item for item in retrieved if item.get("metadata", {}).get("call_id") == args.call_id]
+
                 analytics = analytics_engine.summarize(retrieved)
                 analytics["call_analytics_snapshot"] = _slice_call_analytics(call_analytics, retrieved)
                 evidence = evidence_engine.build(retrieved)
@@ -98,91 +115,57 @@ def main() -> int:
                     "recommendations": recommendations,
                     "analytics": analytics,
                     "citations": citations,
-                    "evidence": evidence,
-                    "model_info": {
-                        "provider": reasoning.provider,
-                        "model_name": reasoning.model_name,
-                        "input_tokens": reasoning.input_tokens,
-                        "output_tokens": reasoning.output_tokens,
-                        "estimated_cost_usd": reasoning.estimated_cost_usd,
-                    },
                     "processing_time_sec": round(time.perf_counter() - started_at, 2),
                 }
 
-                json_path = JSON_OUTPUT_DIR / f"{parsed.name}.json"
+                output_path = JSON_OUTPUT_DIR / f"{parsed.name}.json"
+                write_json(output_path, result)
+                report_text = report_engine.build_report(result)
                 report_path = REPORTS_OUTPUT_DIR / f"{parsed.name}.txt"
+                report_path.write_text(report_text, encoding="utf-8")
+                
                 evidence_path = EVIDENCE_OUTPUT_DIR / f"{parsed.name}.json"
-                write_json(json_path, result)
-                report_path.write_text(report_engine.build_report(result), encoding="utf-8")
                 write_json(evidence_path, evidence)
 
                 dashboard_rows.append(
                     {
                         "query_name": parsed.name,
                         "query_type": parsed.query_type,
+                        "answer_excerpt": (result["answer"][:100] + "...") if len(result["answer"]) > 100 else result["answer"],
                         "confidence": result["confidence"],
-                        "matched_calls": analytics.get("matched_calls", 0),
-                        "top_emotions": analytics.get("top_emotions", []),
+                        "recommendation_count": len(recommendations),
+                        "processing_time": result["processing_time_sec"],
                     }
                 )
+
                 append_csv_row(
                     QUERY_LOG_PATH,
                     QUERY_LOG_HEADERS,
                     {
                         "query_name": parsed.name,
                         "status": "SUCCESS",
-                        "query_text": parsed.raw_query,
-                        "retrieved_results": str(len(retrieved)),
-                        "confidence": str(result["confidence"]),
                         "processing_time_sec": str(result["processing_time_sec"]),
-                        "input_tokens": str(reasoning.input_tokens or ""),
-                        "output_tokens": str(reasoning.output_tokens or ""),
-                        "estimated_cost_usd": str(reasoning.estimated_cost_usd or ""),
+                        "error_message": "",
                     },
-                )
-                append_csv_row(
-                    DIAGNOSTICS_LOG_PATH,
-                    DIAGNOSTICS_LOG_HEADERS,
-                    {
-                        "query_name": parsed.name,
-                        "query_type": parsed.query_type,
-                        "filters": str(parsed.filters),
-                        "top_score": str(retrieved[0]["score"] if retrieved else ""),
-                        "evidence_count": str(len(evidence)),
-                    },
-                )
-                terminal.summary(
-                    "Decision Query Summary",
-                    [
-                        ("Query", parsed.name),
-                        ("Type", parsed.query_type),
-                        ("Confidence", str(result["confidence"])),
-                        ("Evidence", str(len(evidence))),
-                        ("Report", str(report_path)),
-                    ],
                 )
             except Exception as exc:
+                error_message = str(exc)
+                terminal.exception(query_name, error_message, exc)
                 append_csv_row(
                     QUERY_LOG_PATH,
                     QUERY_LOG_HEADERS,
                     {
                         "query_name": query_name,
                         "status": "FAILED",
-                        "query_text": query_text,
-                        "retrieved_results": "0",
-                        "confidence": "0",
                         "processing_time_sec": str(round(time.perf_counter() - started_at, 2)),
-                        "input_tokens": "",
-                        "output_tokens": "",
-                        "estimated_cost_usd": "",
+                        "error_message": error_message,
                     },
                 )
-                terminal.exception(query_name, str(exc), exc)
             finally:
                 progress.advance(task)
 
-    write_json(DASHBOARDS_OUTPUT_DIR / "decision_dashboard.json", dashboard_rows)
-    terminal.success("Phase 6 completed. Decision-intelligence outputs are ready.")
+    _save_dashboard(dashboard_rows)
+    terminal.success("Phase 6 completed. Decision intelligence results and reports are ready.")
     return 0
 
 
@@ -194,14 +177,12 @@ def _read_first(candidates: list[Path], default: Any) -> Any:
     return default
 
 
-def _slice_call_analytics(call_analytics: dict[str, Any], retrieved: list[dict[str, Any]]) -> dict[str, Any]:
-    selected = {}
-    for item in retrieved[:5]:
-        call_id = str(item.get("metadata", {}).get("call_id", "")).strip()
-        if call_id and call_id in call_analytics:
-            selected[call_id] = call_analytics[call_id]
-    return selected
+def _slice_call_analytics(full_analytics: dict[str, Any], retrieved_items: list[dict[str, Any]]) -> dict[str, Any]:
+    call_ids = {item.get("metadata", {}).get("call_id") for item in retrieved_items if item.get("metadata", {}).get("call_id")}
+    return {call_id: full_analytics[call_id] for call_id in call_ids if call_id in full_analytics}
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+def _save_dashboard(rows: list[dict[str, Any]]) -> None:
+    from shared.workbook_utils import save_csv_rows
+    headers = ["query_name", "query_type", "answer_excerpt", "confidence", "recommendation_count", "processing_time"]
+    save_csv_rows(DASHBOARDS_OUTPUT_DIR / "decision_intelligence_dashboard.csv", headers, rows)

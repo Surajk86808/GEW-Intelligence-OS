@@ -49,17 +49,15 @@ PHASE_5_CALL_ANALYTICS_CANDIDATES = [
     REPO_ROOT / "phase_5_knowledge_layer" / "outputs" / "analytics" / "call_analytics.json",
 ]
 PHASE_4_MANIFEST_CANDIDATES = [
-    REPO_ROOT / "phase_3_ai_reasoning" / "phase_4_ai_reasoning" / "outputs" / "metadata" / "reasoning_manifest.json",
-    REPO_ROOT / "phase_4_ai_reasoning" / "outputs" / "metadata" / "reasoning_manifest.json",
+    REPO_ROOT / "phase_3_ai_reasoning" / "reasoning" / "outputs" / "metadata" / "reasoning_manifest.json",
 ]
 PHASE_1_CALL_MANIFEST_CANDIDATES = [
-    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "phase_1_map_and_download" / "mapped_calls" / "call_manifest.json",
-    REPO_ROOT / "phase_1_map_and_download" / "mapped_calls" / "call_manifest.json",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "call_manifest.json",
 ]
 
 LLM_PROVIDER = get_env("PHASE_6_LLM_PROVIDER", "gemini").lower()
 GEMINI_API_KEY = get_env("GEMINI_API_KEY", "")
-PRIMARY_LLM_MODEL = get_env("PRIMARY_LLM_MODEL", "gemini-2.0-flash")
+PRIMARY_LLM_MODEL = get_env("PRIMARY_LLM_MODEL", "gemini-2.5-flash")
 LLM_TEMPERATURE = get_env_float("PHASE_6_LLM_TEMPERATURE", 0.1)
 MAX_RETRIEVAL_RESULTS = get_env_int("PHASE_6_MAX_RETRIEVAL_RESULTS", 12)
 MAX_EVIDENCE_ITEMS = get_env_int("PHASE_6_MAX_EVIDENCE_ITEMS", 8)
@@ -73,6 +71,7 @@ QUERY_LOG_HEADERS = [
     "retrieved_results",
     "confidence",
     "processing_time_sec",
+    "error_message",
     "input_tokens",
     "output_tokens",
     "estimated_cost_usd",

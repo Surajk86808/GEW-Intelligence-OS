@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 import time
 
@@ -28,12 +29,21 @@ from shared.logging_utils import TerminalUI, append_csv_row
 from shared.schema_utils import PhaseOutputEntry
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 3 Enrichment")
+    parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    args = parser.parse_args(argv)
+
     ensure_phase_directories()
     terminal = TerminalUI(RUNTIME_LOG_PATH)
     terminal.rule("GEW Intelligence OS - Phase 3 Transcript Enrichment & Voice Intelligence", style="bold green")
 
     discovered_inputs, discovery_warnings = discover_inputs()
+
+    if args.call_id:
+        terminal.info(f"Filtering for specific call ID: {args.call_id}")
+        discovered_inputs = [item for item in discovered_inputs if item.call_id == args.call_id]
+
     for warning in discovery_warnings:
         terminal.warning(warning)
 

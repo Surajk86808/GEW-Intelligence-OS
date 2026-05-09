@@ -10,9 +10,9 @@ if str(PHASE_DIR) not in sys.path:
 from reasoning.main import main as reasoning_main
 
 
-def main() -> int:
-    return reasoning_main()
+def main(argv: list[str] | None = None) -> int:
+    return reasoning_main(argv)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

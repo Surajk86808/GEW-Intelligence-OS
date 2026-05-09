@@ -19,13 +19,24 @@ class VectorEngine:
                 return
         self.records.append(payload)
 
-    def search(self, query_vector: list[float], top_k: int, filters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    def search(
+        self,
+        query_vector: list[float],
+        top_k: int,
+        filters: dict[str, Any] | None = None,
+        query_text: str = "",
+    ) -> list[dict[str, Any]]:
         matches: list[dict[str, Any]] = []
+        query_terms = _tokenize(query_text)
         for record in self.records:
             metadata = record["metadata"]
             if filters and not _matches_filters(metadata, filters):
                 continue
-            score = cosine_similarity(query_vector, record["vector"])
+            record_vector = record.get("vector", [])
+            if query_vector and record_vector:
+                score = cosine_similarity(query_vector, record_vector)
+            else:
+                score = keyword_similarity(query_terms, str(metadata.get("text", "")))
             matches.append(
                 {
                     "chunk_id": record["chunk_id"],
@@ -49,6 +60,23 @@ def cosine_similarity(left: list[float], right: list[float]) -> float:
     if left_norm == 0 or right_norm == 0:
         return 0.0
     return numerator / (left_norm * right_norm)
+
+
+def keyword_similarity(query_terms: set[str], text: str) -> float:
+    if not query_terms:
+        return 0.0
+    text_terms = _tokenize(text)
+    if not text_terms:
+        return 0.0
+    overlap = len(query_terms.intersection(text_terms))
+    if overlap == 0:
+        return 0.0
+    return overlap / max(len(query_terms), 1)
+
+
+def _tokenize(text: str) -> set[str]:
+    cleaned = "".join(char.lower() if char.isalnum() else " " for char in text)
+    return {token for token in cleaned.split() if token}
 
 
 def _matches_filters(metadata: dict[str, Any], filters: dict[str, Any]) -> bool:

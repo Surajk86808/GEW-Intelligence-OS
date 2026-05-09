@@ -4,15 +4,18 @@ import hashlib
 import math
 from typing import Any
 
-from .config import EMBEDDING_CACHE_PATH, EMBEDDING_DIMENSION, EMBEDDING_PROVIDER
+from .config import EMBEDDING_CACHE_PATH, EMBEDDING_DIMENSION, EMBEDDING_PROVIDER, ENABLE_VECTOR_EMBEDDING
 from shared.json_utils import read_json, write_json
 
 
 class EmbeddingEngine:
     def __init__(self) -> None:
+        self.enabled = ENABLE_VECTOR_EMBEDDING
         self.cache = read_json(EMBEDDING_CACHE_PATH, default={}) or {}
 
     def embed_text(self, text: str) -> list[float]:
+        if not self.enabled:
+            return []
         if EMBEDDING_PROVIDER != "hashing":
             raise RuntimeError(f"Embedding provider '{EMBEDDING_PROVIDER}' is not implemented yet.")
 
@@ -39,6 +42,8 @@ class EmbeddingEngine:
         return vector
 
     def persist_cache(self) -> None:
+        if not self.enabled:
+            return
         write_json(EMBEDDING_CACHE_PATH, self.cache)
 
     def _tokenize(self, text: str) -> list[str]:

@@ -123,11 +123,12 @@ Return valid JSON only with this schema:
 """
 
 
+from shared.llm_client import LLMClient
+from shared.settings import QUERY_MODEL
+
 class QueryIntelligenceEngine:
     def __init__(self, logger: Any = None) -> None:
         self.logger = logger
-        self.gemini_client = None
-        self._initialize_llm()
 
     def answer(
         self,
@@ -141,23 +142,17 @@ class QueryIntelligenceEngine:
         if not retrieved_chunks:
             return self._insufficient_response()
 
-        if self.gemini_client is None:
-            return self._fallback_response(query, retrieved_chunks, reasoning_data, metadata, evidence_records)
-
         prompt = self._build_prompt(query, session_memory, retrieved_chunks, reasoning_data, metadata, evidence_records)
         try:
-            from google.genai import types
-            config = types.GenerateContentConfig(
-                temperature=QUERY_LLM_TEMPERATURE,
-                response_mime_type="application/json",
+            response_text = LLMClient.generate_content(
+                model=QUERY_MODEL,
+                prompt=prompt,
                 system_instruction=SYSTEM_PROMPT,
+                temperature=QUERY_LLM_TEMPERATURE,
+                response_mime_type="application/json"
             )
-            response = self.gemini_client.models.generate_content(
-                model=QUERY_LLM_MODEL,
-                contents=prompt,
-                config=config,
-            )
-            payload = json.loads((getattr(response, "text", "") or "").strip())
+            
+            payload = json.loads(response_text)
             if not isinstance(payload, dict):
                 return self._fallback_response(query, retrieved_chunks, reasoning_data, metadata, evidence_records)
             payload.setdefault("confidence", 0.5)
@@ -178,21 +173,6 @@ class QueryIntelligenceEngine:
             import traceback
             print(traceback.format_exc())
             return self._fallback_response(query, retrieved_chunks, reasoning_data, metadata, evidence_records)
-
-    def _initialize_llm(self) -> None:
-        try:
-            if QUERY_LLM_PROVIDER != "gemini":
-                return
-            from google import genai
-            from shared.config_utils import get_env
-
-            api_key = get_env("GEMINI_API_KEY", "")
-            if not api_key:
-                return
-            self.gemini_client = genai.Client(api_key=api_key)
-        except ImportError:
-            if self.logger:
-                self.logger.warning("google-genai not installed for query intelligence.")
 
     def _build_prompt(
         self,

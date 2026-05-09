@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 import time
 from pathlib import Path
@@ -33,7 +34,11 @@ from shared.logging_utils import TerminalUI, append_csv_row
 from shared.schema_utils import PhaseOutputEntry
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 4 Reasoning")
+    parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    args = parser.parse_args(argv)
+
     ensure_phase_directories()
     terminal = TerminalUI(RUNTIME_LOG_PATH)
     terminal.rule("GEW Intelligence OS - Phase 4 AI Reasoning", style="bold yellow")
@@ -45,6 +50,13 @@ def main() -> int:
     if not transcript_manifest:
         terminal.warning("No transcript manifest found. Nothing to reason over.")
         return 0
+
+    if args.call_id:
+        terminal.info(f"Filtering for specific call ID: {args.call_id}")
+        transcript_manifest = [item for item in transcript_manifest if str(item.get("call_id", "")).strip() == args.call_id]
+        if not transcript_manifest:
+            terminal.warning(f"No match found for call ID: {args.call_id}")
+            return 0
 
     phase3_by_call = {str(item.get("call_id", "")).strip(): item for item in emotion_manifest}
     phase1_by_call = {str(item.get("call_id", "")).strip(): item for item in call_manifest}
