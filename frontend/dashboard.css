@@ -297,9 +297,7 @@ a {
 .insight-card:hover,
 .action-card:hover,
 .campaign-item:hover {
-    transform: translateY(-4px);
-    border-color: rgba(96, 165, 250, 0.3);
-    box-shadow: 0 28px 80px rgba(3, 9, 20, 0.58), 0 0 32px rgba(56, 189, 248, 0.08);
+    border-color: rgba(96, 165, 250, 0.4);
 }
 
 .kpi-card::after,
@@ -457,8 +455,8 @@ a {
 
 .funnel-bar {
     position: relative;
-    height: 56px;
-    border-radius: 20px;
+    height: 48px;
+    border-radius: 12px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(148, 163, 184, 0.08);
     overflow: hidden;
@@ -468,14 +466,14 @@ a {
     position: absolute;
     inset: 0 auto 0 0;
     border-radius: inherit;
-    background: linear-gradient(90deg, rgba(56, 189, 248, 0.95), rgba(96, 165, 250, 0.5));
+    background: var(--accent-cyan);
     display: flex;
     align-items: center;
     padding-left: 18px;
-    min-width: 120px;
+    min-width: 100px;
     color: #04111f;
-    font-weight: 800;
-    transition: width 0.9s ease;
+    font-weight: 700;
+    transition: width 0.6s ease;
 }
 
 .campaign-layout {
@@ -1010,4 +1008,225 @@ tbody tr:hover {
         min-height: 220px;
     }
 }
+/* Add these to the existing dashboard.css file */
 
+/* Explanation & Context Blocks */
+.insight-why,
+.metric-explanation,
+.performance-gap {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 3px solid var(--accent-cyan);
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-top: 10px;
+    line-height: 1.6;
+}
+
+.metric-explanation strong {
+    color: var(--text-main);
+    display: block;
+    margin-bottom: 4px;
+}
+
+.metric-explanation br {
+    margin-bottom: 6px;
+}
+
+/* Performance Benchmarks */
+.top-performer-benchmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: rgba(52, 211, 153, 0.12);
+    border-radius: 8px;
+    color: var(--accent-emerald);
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid rgba(52, 211, 153, 0.2);
+}
+
+.performance-delta {
+    font-weight: 700;
+    color: var(--accent-rose);
+}
+
+.performance-delta.positive {
+    color: var(--accent-emerald);
+}
+
+/* Why Top Performer Section */
+.leader-insight {
+    margin-top: 14px;
+    padding-top: 14px;
+    padding-bottom: 12px;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+    background: rgba(52, 211, 153, 0.06);
+    border-radius: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.leader-insight strong {
+    color: var(--accent-emerald);
+    font-size: 12px;
+}
+
+.leader-insight span:first-of-type {
+    display: block;
+    margin-bottom: 6px;
+}
+
+/* Risk Card Enhancements */
+.risk-card .metric-explanation {
+    border-left-color: var(--accent-rose);
+    background: rgba(251, 113, 133, 0.06);
+    margin-top: 12px;
+}
+
+.risk-card.warning .metric-explanation {
+    border-left-color: var(--accent-amber);
+    background: rgba(251, 191, 36, 0.06);
+}
+
+/* Campaign Card Improvements */
+.campaign-item .metric-explanation {
+    font-size: 11px;
+    border-left-color: var(--accent-blue);
+    margin-top: 10px;
+    padding: 8px 10px;
+}
+
+/* Highlight Card Info */
+.highlight-card .metric-explanation {
+    margin-top: 10px;
+    border-left: none;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.highlight-card.good .metric-explanation {
+    background: rgba(52, 211, 153, 0.08);
+    border-left: 3px solid var(--accent-emerald);
+}
+
+.highlight-card.bad .metric-explanation {
+    background: rgba(251, 113, 133, 0.08);
+    border-left: 3px solid var(--accent-rose);
+}
+
+/* Interview-Ready Insight Cards */
+.insight-card .metric-explanation {
+    margin-top: 12px;
+    border-left-color: var(--accent-violet);
+    background: rgba(167, 139, 250, 0.06);
+    font-size: 11px;
+}
+
+.action-card .metric-explanation {
+    margin-top: 12px;
+    border-left-color: var(--accent-emerald);
+    background: rgba(52, 211, 153, 0.06);
+    font-size: 11px;
+}
+
+/* Centre Table Tooltip Info */
+table tbody tr[title] {
+    cursor: help;
+}
+
+table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* KPI Card Footer Enhancement */
+.kpi-foot {
+    color: var(--text-soft);
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 8px;
+}
+
+/* Funnel Step Explanation */
+.funnel-step > div:last-child {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    padding-left: 4px;
+    border-left: 2px solid rgba(56, 189, 248, 0.3);
+    padding-left: 8px;
+}
+
+/* Rate Pill with Context */
+.rate-pill {
+    position: relative;
+}
+
+.rate-pill span {
+    display: block;
+    margin-top: 2px;
+}
+
+/* Responsive - Keep explanations readable on mobile */
+@media (max-width: 820px) {
+    .insight-why,
+    .metric-explanation,
+    .performance-gap {
+        font-size: 11px;
+        padding: 10px 12px;
+    }
+
+    .leader-insight {
+        margin-top: 12px;
+        padding-top: 10px;
+    }
+}
+
+@media (max-width: 560px) {
+    .insight-why,
+    .metric-explanation,
+    .performance-gap {
+        font-size: 10px;
+        padding: 8px 10px;
+    }
+
+    .metric-explanation strong {
+        font-size: 11px;
+    }
+}
+.insight-why,
+.metric-explanation,
+.performance-gap {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(56, 189, 248, 0.08);
+    border-left: 3px solid var(--accent-cyan);
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-top: 8px;
+    line-height: 1.5;
+}
+
+.top-performer-benchmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(52, 211, 153, 0.12);
+    border-radius: 8px;
+    color: var(--accent-emerald);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.performance-delta {
+    font-weight: 700;
+    color: var(--accent-rose);
+}
+
+.performance-delta.positive {
+    color: var(--accent-emerald);
+}

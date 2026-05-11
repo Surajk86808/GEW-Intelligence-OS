@@ -112,6 +112,12 @@ async function loadDashboard() {
         const data = await response.json();
         window.__dashboardData = data;
 
+        // Diagnostic logs for blank screen troubleshooting
+        console.log("Dashboard Data Loaded:", !!data);
+        console.log("Found Overall Funnel:", !!data.overall_funnel);
+        console.log("Top Performers Count:", data.top_3_performers?.length || 0);
+        console.log("Campaigns Count:", data.campaign_performance?.length || 0);
+
         renderDashboard(data);
         setStatus(status, "success", "Live intelligence feed loaded");
     } catch (error) {
@@ -187,7 +193,7 @@ function renderLeaderboard(data) {
             <div class="leader-top">
                 <div>
                     <span class="leader-rank">Rank #${index + 1}</span>
-                    <h4 class="leader-name">${escapeHtml(performer.name)}</h4>
+                    <h4 class="leader-name">${escapeHtml(shortenLabel(performer.name, 20))}</h4>
                 </div>
                 <div class="leader-score">${Number(performer.performance_score ?? 0).toFixed(2)}</div>
             </div>
@@ -231,7 +237,7 @@ function renderFunnel(data) {
                 <strong>${formatInteger(step.value)}</strong>
             </div>
             <div class="funnel-bar">
-                <div class="funnel-fill" style="width:${Math.max((step.value / max) * 100, 18)}%; animation-delay:${index * 80}ms">
+                <div class="funnel-fill" style="width:${Math.max((step.value / max) * 100, 18)}%; transition-delay:${index * 80}ms">
                     ${formatInteger(step.value)}
                 </div>
             </div>
@@ -291,7 +297,7 @@ function renderCampaignList(campaigns) {
                 campaigns.map(campaign => `
                     <article class="campaign-item">
                         <div class="campaign-item-header">
-                            <div class="campaign-name">${escapeHtml(campaign.campaign)}</div>
+                            <div class="campaign-name">${escapeHtml(shortenLabel(campaign.campaign))}</div>
                             <span class="campaign-badge">${Number(campaign.enrollment_rate_pct ?? 0).toFixed(1)}%</span>
                         </div>
                         <div class="campaign-stats">
@@ -427,13 +433,12 @@ function renderDurationChart(distribution) {
         datasets: [{
             data: values,
             backgroundColor: ["#38bdf8", "#60a5fa", "#a78bfa", "#34d399", "#fbbf24"],
-            borderColor: "rgba(7, 12, 22, 0.9)",
-            borderWidth: 3,
-            hoverOffset: 8,
+            borderWidth: 0,
+            hoverOffset: 4,
         }],
     }, {
         plugins: {
-            legend: { labels: { color: "#cbd5e1" } },
+            legend: { display: false },
         },
     });
 }
@@ -444,24 +449,23 @@ function renderCounselorVolumeChart(volumeByCounselor) {
         datasets: [{
             label: "Inbound Calls",
             data: Object.values(volumeByCounselor),
-            borderRadius: 14,
-            backgroundColor: ["rgba(56, 189, 248, 0.85)", "rgba(96, 165, 250, 0.8)", "rgba(167, 139, 250, 0.82)"],
+            backgroundColor: "#38bdf8",
         }],
     }, axisOptions(false));
 }
 
 function renderDailyTrendChart(volumeByDay) {
+    const sortedKeys = Object.keys(volumeByDay).sort();
     mountChart("daily-trend-chart", "line", {
-        labels: Object.keys(volumeByDay),
+        labels: sortedKeys,
         datasets: [{
             label: "Daily Inbound Calls",
-            data: Object.values(volumeByDay),
-            tension: 0.35,
+            data: sortedKeys.map(k => volumeByDay[k]),
+            tension: 0.1,
             borderColor: "#38bdf8",
-            backgroundColor: "rgba(56, 189, 248, 0.18)",
-            fill: true,
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
         }],
     }, axisOptions(true));
 }
@@ -471,23 +475,22 @@ function renderCampaignChart(campaigns) {
         labels: campaigns.map(item => shortenLabel(item.campaign, 18)),
         datasets: [
             {
-                label: "Enrollment Rate %",
+                label: "Enrollment %",
                 data: campaigns.map(item => item.enrollment_rate_pct ?? 0),
-                backgroundColor: "rgba(52, 211, 153, 0.82)",
-                borderRadius: 10,
+                backgroundColor: "#34d399",
             },
             {
-                label: "Walk-in Rate %",
+                label: "Walk-in %",
                 data: campaigns.map(item => item.walkin_rate_pct ?? 0),
-                backgroundColor: "rgba(56, 189, 248, 0.78)",
-                borderRadius: 10,
+                backgroundColor: "#38bdf8",
             },
         ],
     }, {
         ...axisOptions(false),
         plugins: {
             legend: {
-                labels: { color: "#cbd5e1" },
+                position: "top",
+                labels: { boxWidth: 12, color: "#cbd5e1" },
             },
         },
     });
@@ -554,29 +557,26 @@ function mountChart(canvasId, type, data, options = {}) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            animation: {
-                duration: 900,
-                easing: "easeOutQuart",
-            },
+            animation: false,
             scales: type === "doughnut" ? {} : {
                 x: {
-                    grid: { color: "rgba(148, 163, 184, 0.08)" },
-                    ticks: { color: "#94a3b8" },
+                    grid: { display: false },
+                    ticks: { color: "#94a3b8", font: { size: 10 } },
                 },
                 y: {
-                    grid: { color: "rgba(148, 163, 184, 0.08)" },
-                    ticks: { color: "#94a3b8" },
+                    grid: { display: false },
+                    ticks: { color: "#94a3b8", font: { size: 10 } },
                 },
             },
             plugins: {
-                legend: { labels: { color: "#cbd5e1" } },
+                legend: { 
+                    display: type !== "doughnut",
+                    labels: { color: "#cbd5e1", boxWidth: 10, font: { size: 11 } } 
+                },
                 tooltip: {
-                    backgroundColor: "rgba(7, 12, 22, 0.96)",
-                    titleColor: "#f8fafc",
-                    bodyColor: "#cbd5e1",
-                    borderColor: "rgba(56, 189, 248, 0.18)",
-                    borderWidth: 1,
-                    padding: 12,
+                    enabled: true,
+                    backgroundColor: "rgba(7, 12, 22, 0.9)",
+                    padding: 8,
                 },
             },
             ...options,
@@ -589,11 +589,10 @@ function axisOptions(showXAxisBorder) {
         scales: {
             x: {
                 grid: { display: false },
-                border: { display: showXAxisBorder },
                 ticks: { color: "#94a3b8" },
             },
             y: {
-                grid: { color: "rgba(148, 163, 184, 0.08)" },
+                grid: { display: false },
                 ticks: { color: "#94a3b8" },
                 beginAtZero: true,
             },
@@ -687,7 +686,7 @@ function formatDurationBucket(key) {
     return key
         .replace("under_", "Under ")
         .replace("over_", "Over ")
-        .replace("_", "-")
+        .replace(/_/g, "-")
         .replace("min", " min");
 }
 
@@ -708,3 +707,4 @@ function escapeHtml(value) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
 }
+

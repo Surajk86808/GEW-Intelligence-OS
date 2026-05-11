@@ -51,6 +51,30 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--text-main);
+        }
+
+        .nav-link.active {
+            color: var(--accent-amber);
+            font-weight: bold;
+        }
+
         .status {
             display: flex;
             align-items: center;
@@ -387,6 +411,10 @@
 <body>
     <header>
         <div class="logo">GEW CALL INTELLIGENCE</div>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link active">Chat</a>
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+        </nav>
         <div class="status">
             <div id="status-dot" class="status-dot"></div>
             <span id="status-text">Checking API...</span>
