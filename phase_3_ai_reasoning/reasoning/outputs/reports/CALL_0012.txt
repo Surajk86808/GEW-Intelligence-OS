@@ -1,0 +1,16 @@
+AI REASONING REPORT: CALL_0012
+Intent Level: exploratory
+Lead Quality Score: 37
+Conversion Probability: 0.37
+
+[STRATEGIC SUMMARY]
+The customer called with a specific, high-intent request for offline coaching for teaching exams in Varanasi. The agent correctly identified that this service is not offered and communicated this clearly. The customer then pivoted to an exploratory interest in online courses. The agent was helpful but missed a key opportunity to actively engage the customer on this new interest and convert the lead. The call ended politely with medium potential for a follow-up regarding online offerings. This interaction highlights a service gap in the offline portfolio for teaching exam preparation.
+
+[RISK FLAGS]
+- Product/Service Gap: The customer's inquiry for offline teaching exam coaching reveals a potential market demand that the company's current offline services do not meet.
+
+[OBJECTIONS]
+- 00:28 | other | Simran actually teaching exams par hum focus nahi kar rahe hain abhi offline centers pe. | emotion=This is not a customer objection but a statement from the agent highlighting a service gap. The customer's inquiry at 00:18 for teaching-related exam coaching could not be met by the company's offline offerings, which is the core reason the initial sales opportunity was lost.
+
+[FOLLOW UP]
+{'priority': 'medium', 'recommended_actions': ['Reduce pressure in the follow-up and use reassurance-based messaging.', 'Address objections in the next follow-up with direct proof points and price framing.']}

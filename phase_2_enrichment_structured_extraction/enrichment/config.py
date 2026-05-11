@@ -6,6 +6,7 @@ from shared.config_utils import get_env, get_env_float, get_env_int
 from shared.path_utils import ensure_directories
 
 PROJECT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = PROJECT_DIR.parent.parent
 
 INPUTS_DIR = PROJECT_DIR / "inputs"
 INPUTS_TRANSCRIPTS_DIR = INPUTS_DIR / "transcripts"
@@ -32,9 +33,9 @@ PROCESSING_LOG_PATH = LOGS_DIR / "phase_3_processing_log.csv"
 
 AUDIO_SOURCE_CANDIDATES = [
     LOCAL_AUDIO_INPUT_DIR,
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "ingestion" / "audio",
-    PROJECT_DIR.parent / "phase_1_transcription" / "audio",
-    PROJECT_DIR.parent / "phase_1_map & download" / "audio",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "audio",
+    REPO_ROOT / "phase_1_transcription" / "audio",
+    REPO_ROOT / "phase_1_map & download" / "audio",
 ]
 
 ENRICHED_TRANSCRIPT_SOURCE_CANDIDATES = [
@@ -49,23 +50,23 @@ MANUAL_INPUT_SOURCE_CANDIDATES = [
     INPUTS_EXTERNAL_IMPORTS_DIR,
 ]
 STRUCTURED_TRANSCRIPT_SOURCE_CANDIDATES = [
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "transcription" / "structured_output",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "transcription" / "structured_output",
 ]
 TRANSCRIPT_TEXT_SOURCE_CANDIDATES = [
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "transcription" / "outputs" / "transcripts",
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "transcription" / "transcripts",
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "transcription" / "transcripts" / "transcript from gemini",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "transcription" / "outputs" / "transcripts",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "transcription" / "transcripts",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "transcription" / "transcripts" / "transcript from gemini",
 ]
 COMBINED_TRANSCRIPT_CANDIDATES = [
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "transcription" / "transcripts" / "transcript from gemini" / "ALL_CALLS_COMBINED.txt",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "transcription" / "transcripts" / "transcript from gemini" / "ALL_CALLS_COMBINED.txt",
 ]
 CALL_MANIFEST_CANDIDATES = [
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "call_manifest.json",
-    PROJECT_DIR.parent / "phase_1_ingestion" / "outputs" / "metadata" / "call_manifest.json",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "call_manifest.json",
+    REPO_ROOT / "phase_1_ingestion" / "outputs" / "metadata" / "call_manifest.json",
 ]
 LEAD_PROFILES_DIR_CANDIDATES = [
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "lead_profiles",
-    PROJECT_DIR.parent / "phase_1_ingestion" / "outputs" / "metadata" / "lead_profiles",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "lead_profiles",
+    REPO_ROOT / "phase_1_ingestion" / "outputs" / "metadata" / "lead_profiles",
 ]
 
 TARGET_SAMPLE_RATE = 16000

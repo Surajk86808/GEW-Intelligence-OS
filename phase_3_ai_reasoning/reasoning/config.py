@@ -6,6 +6,7 @@ from shared.config_utils import get_env, get_env_float, get_env_int
 from shared.path_utils import ensure_directories
 
 PROJECT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = PROJECT_DIR.parent.parent
 
 INPUTS_DIR = PROJECT_DIR / "inputs"
 INPUTS_TRANSCRIPTS_DIR = INPUTS_DIR / "transcripts"
@@ -37,19 +38,19 @@ LOCAL_CALL_MANIFEST_PATH = INPUTS_METADATA_DIR / "call_manifest.json"
 
 TRANSCRIPT_MANIFEST_CANDIDATES = [
     LOCAL_TRANSCRIPT_MANIFEST_PATH,
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "transcription" / "outputs" / "metadata" / "transcript_manifest.json",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "transcription" / "outputs" / "metadata" / "transcript_manifest.json",
 ]
 EMOTION_MANIFEST_CANDIDATES = [
     LOCAL_EMOTION_MANIFEST_PATH,
-    PROJECT_DIR.parent / "phase_2_enrichment_structured_extraction" / "enrichment" / "outputs" / "metadata" / "emotion_manifest.json",
+    REPO_ROOT / "phase_2_enrichment_structured_extraction" / "enrichment" / "outputs" / "metadata" / "emotion_manifest.json",
 ]
 CALL_MANIFEST_CANDIDATES = [
     LOCAL_CALL_MANIFEST_PATH,
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "call_manifest.json",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "call_manifest.json",
 ]
 LEAD_PROFILE_DIR_CANDIDATES = [
     INPUTS_CRM_DIR / "lead_profiles",
-    PROJECT_DIR.parent / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "lead_profiles",
+    REPO_ROOT / "phase_1_audio_ingestion_transcription" / "ingestion" / "mapped_calls" / "lead_profiles",
 ]
 
 LLM_PROVIDER = get_env("PHASE_4_LLM_PROVIDER", "gemini").lower()

@@ -1,0 +1,28 @@
+VOICE INTELLIGENCE SUMMARY: CALL_0012
+Duration: 95.4 sec
+Transcript Source: phase_2_structured_json
+Primary Intent: offline_center_inquiry
+Top Emotions: none_detected
+--------------------------------------------------
+[ENGAGEMENT]
+Engagement Score: 0.88
+Stress Score: 1.0
+Confidence Score: 0.24
+Escalation Detected: False
+
+[SPEAKER METRICS]
+Speaker 1 Talk Ratio: 44%
+Speaker 2 Talk Ratio: 56%
+Interruptions: 264
+Response Latency Avg: 0.35
+
+[SILENCE]
+Longest Silence: 0.93 sec
+Awkward Silences: 0
+High Pressure Pauses: 0
+
+[ACOUSTICS]
+Average Speaking Rate WPM: 257.65
+Pitch Variation: 732.9813
+Energy Fluctuation: 0.0452
+--------------------------------------------------

@@ -1,45 +1,15 @@
 DECISION INTELLIGENCE REPORT: campaign_high_intent_patterns
-Query: Which campaigns generate high intent conversations and what evidence supports that?
-Confidence: 0.39
+Query: Which campaigns generate high intent conversations and what evidence supports that? (Context: CALL_0006)
+Confidence: 0.0
 
 [ANSWER]
-The strongest evidence for 'Which campaigns generate high intent conversations and what evidence supports that?' comes from 8 retrieved conversation segment(s), led by call CALL_0475 at 03:17.
+Insufficient evidence to answer the query confidently.
 
 [FACTS]
-- CALL_0475 03:17: Agent: (Clarifying interest) "For which exam?"
-Caller: (Direct) "JE."
-Agent: (Online/Offline boundary) "If you want to prepare for SSC JE, it is available online."
-Caller: (Price query) "And what are the fees for that?"
-Agent: (Professional separation of departments) "We provide online preparation for SSC JE... I will share the number with you, and our online team will contact and guide you. I cannot guide you regarding online."
-Agent: (Re-focusing) "Does the child want to prepare for SSC JE? Tell me properly so I can give you details."
-Caller: (Broadening interest) "Currently for SSC, and if that can be done too... SSC JE."
-Agent: (Targeting high-level goal) "So currently the child wants to prepare for SSC CGL level?"
-- CALL_0274 03:08: Caller: Just opened on March 30th?
-Agent: Yes.
-Caller: Do you also prepare for JE?
-Agent: For which exam?
-Caller: JE.
-Agent: If you want to prepare for SSC JE, it is available online.
-Caller: And what are the fees for that?
-Agent: (Professional) We provide online preparation for SSC JE... I will share the number with you, and our online team will contact and guide you. I cannot guide you regarding online.
-- CALL_0291 00:02: Agent: (Calm, standard greeting) Hello?
-Caller: (Low volume, slightly muffled) Hello?
-Agent: (Switching to a high-energy, welcoming, and practiced "Customer Service" tone) Namaskar! Very good afternoon. I am Shuman Bastar Rao, Senior Academic Counselor from PW Government Exam Wallah. Tell me, how can I help you?
-[0:11 - 0:26] Identifying the Goal
-Caller: (Speaking with a soft, somewhat shy voice) Sir, banking exam... for banking.
-Agent: (Quickly clarifying, professional) Which exam?
-Caller: Banking.
-Agent: (Confident and assertive) Yes, banking preparation is done here. Do you want to prepare through offline or online mode?
+No facts returned.
 
 [STRATEGIC INSIGHTS]
-- Review the cited calls before making broader operational changes.
+No strategic insights returned.
 
 [CITATIONS]
-- CIT-001 CALL_0475@03:17
-- CIT-002 CALL_0274@03:08
-- CIT-003 CALL_0291@00:02
-- CIT-004 CALL_0527@00:00
-- CIT-005 CALL_0559@00:00
-- CIT-006 CALL_0969@unknown
-- CIT-007 CALL_1570@unknown
-- CIT-008 CALL_1587@unknown
+No citations returned.

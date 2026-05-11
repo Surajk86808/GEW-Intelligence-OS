@@ -37,10 +37,15 @@ def write_json(path: Path, payload: Any) -> Path:
             json.dump(payload, handle, indent=2, ensure_ascii=False, cls=EnhancedJSONEncoder)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temp_path, path)
+        
+        # Robust move for Windows file locks
+        _atomic_replace(Path(temp_path), path)
     finally:
         if os.path.exists(temp_path):
-            os.unlink(temp_path)
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
     return path
 
 
@@ -52,8 +57,32 @@ def write_text_atomic(path: Path, content: str, encoding: str = "utf-8") -> Path
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temp_path, path)
+        
+        # Robust move for Windows file locks
+        _atomic_replace(Path(temp_path), path)
     finally:
         if os.path.exists(temp_path):
-            os.unlink(temp_path)
+            try:
+                os.unlink(temp_path)
+            except OSError:
+                pass
     return path
+
+
+def _atomic_replace(src: Path, dst: Path, retries: int = 5, delay: float = 0.2) -> None:
+    """Performs an atomic replacement with retries for Windows environments."""
+    import time
+    for i in range(retries):
+        try:
+            os.replace(src, dst)
+            return
+        except PermissionError:
+            if i == retries - 1:
+                # Last attempt failed, try a non-atomic copy as fallback if destination is locked
+                # (risky but better than a crash in many cases, or just re-raise)
+                raise
+            time.sleep(delay)
+        except OSError:
+            if i == retries - 1:
+                raise
+            time.sleep(delay)

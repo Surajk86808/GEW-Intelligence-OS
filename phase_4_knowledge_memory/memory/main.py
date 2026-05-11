@@ -37,6 +37,7 @@ from shared.schema_utils import PhaseOutputEntry
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 5 Knowledge Layer")
     parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    parser.add_argument("--audio-id", type=str, help="Process using an existing audio file ID.")
     args = parser.parse_args(argv)
 
     ensure_phase_directories()
@@ -49,11 +50,12 @@ def main(argv: list[str] | None = None) -> int:
         terminal.warning("No transcript inputs found. Nothing to index.")
         return 0
 
-    if args.call_id:
-        terminal.info(f"Filtering for specific call ID: {args.call_id}")
-        transcripts = [item for item in transcripts if _normalize_call_id(item.get("call_id", "")) == args.call_id]
+    effective_id = args.audio_id or args.call_id
+    if effective_id:
+        terminal.info(f"Filtering for ID: {effective_id}")
+        transcripts = [item for item in transcripts if _normalize_call_id(item.get("call_id", "")) == effective_id]
         if not transcripts:
-            terminal.warning(f"No match found for call ID: {args.call_id}")
+            terminal.warning(f"No match found for ID: {effective_id}")
             return 0
 
     reasoning_by_call = {_normalize_call_id(item.get("call_id", "")): item for item in reasoning_entries if _normalize_call_id(item.get("call_id", ""))}

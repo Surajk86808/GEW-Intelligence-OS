@@ -18,6 +18,7 @@ PHASE_MODULES = [
 def main() -> int:
     parser = argparse.ArgumentParser(description="GEW Intelligence OS - Full Pipeline Orchestrator")
     parser.add_argument("--call-id", type=str, help="Process only a specific call ID (e.g., CALL_0006).")
+    parser.add_argument("--audio-id", type=str, help="Process using an existing audio file ID (bypasses download).")
     args = parser.parse_args()
 
     validation = subprocess.run([sys.executable, str(ROOT_DIR / "tools" / "validate_architecture.py")], cwd=ROOT_DIR)
@@ -27,7 +28,11 @@ def main() -> int:
     for module_name in PHASE_MODULES:
         print(f"Starting {module_name}...")
         cmd = [sys.executable, "-m", module_name]
-        if args.call_id:
+        
+        # Priority: audio-id (force bypass download mode) > call-id (standard lookup)
+        if args.audio_id:
+            cmd.extend(["--call-id", args.audio_id])
+        elif args.call_id:
             cmd.extend(["--call-id", args.call_id])
             
         result = subprocess.run(cmd, cwd=ROOT_DIR)

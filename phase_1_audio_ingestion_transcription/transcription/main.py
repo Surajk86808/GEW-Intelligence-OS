@@ -67,9 +67,10 @@ def main(argv: list[str] | None = None) -> int:
         terminal.warning("Processing still stops if the whole laptop enters sleep, hibernation, or shutdown.")
 
     call_manifest = _read_first_json(CALL_MANIFEST_CANDIDATES, default=[])
-    if args.call_id:
-        terminal.info(f"Filtering for specific call ID: {args.call_id}")
-        call_manifest = [item for item in call_manifest if _normalize_call_id(str(item.get("call_id", "")).strip()) == _normalize_call_id(args.call_id)]
+    effective_id = args.audio_id or args.call_id
+    if effective_id:
+        terminal.info(f"Filtering for ID: {effective_id}")
+        call_manifest = [item for item in call_manifest if _normalize_call_id(str(item.get("call_id", "")).strip()) == _normalize_call_id(effective_id)]
 
     manifest_lookup = {
         _normalize_call_id(str(item.get("call_id", "")).strip()): item
@@ -163,6 +164,7 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument("--mode", choices=["hybrid", "asr", "external"], default="hybrid", help="Choose ASR-only, external-only, or hybrid transcript processing.")
     parser.add_argument("--external-transcript-file", action="append", default=[], help="Additional external transcript file to ingest.")
     parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    parser.add_argument("--audio-id", type=str, help="Process using an existing audio file ID.")
     parser.add_argument("--background", action="store_true", help="Run in long-duration background batch mode with reduced console overhead.")
     parser.add_argument("--batch", action="store_true", help="Alias for --background.")
     parser.add_argument("--resume", action="store_true", help="Resume from the last saved progress state and skip completed transcripts.")

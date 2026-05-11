@@ -1,0 +1,28 @@
+VOICE INTELLIGENCE SUMMARY: CALL_0008
+Duration: 22.9 sec
+Transcript Source: phase_2_structured_json
+Primary Intent: general_query
+Top Emotions: none_detected
+--------------------------------------------------
+[ENGAGEMENT]
+Engagement Score: 0.87
+Stress Score: 1.0
+Confidence Score: 0.3
+Escalation Detected: True
+
+[SPEAKER METRICS]
+Speaker 1 Talk Ratio: 76%
+Speaker 2 Talk Ratio: 24%
+Interruptions: 31
+Response Latency Avg: 0.63
+
+[SILENCE]
+Longest Silence: 0.83 sec
+Awkward Silences: 0
+High Pressure Pauses: 0
+
+[ACOUSTICS]
+Average Speaking Rate WPM: 47.17
+Pitch Variation: 742.5007
+Energy Fluctuation: 0.0595
+--------------------------------------------------

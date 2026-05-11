@@ -33,11 +33,36 @@ from shared.workbook_utils import load_workbook_sheets, save_updated_workbook
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 1 Ingestion")
     parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    parser.add_argument("--audio-id", type=str, help="Force process using an existing audio ID (skips CRM lookup).")
     args = parser.parse_args(argv)
 
     ensure_phase_directories()
     terminal = TerminalUI(RUNTIME_LOG_PATH)
     terminal.rule("GEW Intelligence OS - Phase 1 Ingestion", style="bold magenta")
+
+    manifest_entries: list[dict[str, object]] = []
+
+    # AUDIO-FIRST BYPASS: If audio-id is provided, check for file immediately
+    effective_audio_id = args.audio_id or args.call_id
+    if effective_audio_id:
+        cached_audio = get_cached_audio_path(effective_audio_id)
+        if cached_audio.exists() and (args.audio_id or not discover_input_excel(silent=True)):
+            terminal.success(f"Bypassing CRM lookup. Using existing audio file: {cached_audio}")
+            manifest_entries.append(
+                CallManifestEntry(
+                    call_id=effective_audio_id,
+                    lead_number="UNKNOWN",
+                    recording_url="",
+                    audio_path=str(cached_audio),
+                    duration="0",
+                    owner="UNKNOWN",
+                    campaign="UNKNOWN",
+                    walkin_status="UNKNOWN",
+                ).to_dict()
+            )
+            write_json(CALL_MANIFEST_PATH, manifest_entries)
+            terminal.success(f"Phase 1 completed using direct audio: {effective_audio_id}")
+            return 0
 
     try:
         input_path = discover_input_excel()
@@ -55,7 +80,6 @@ def main(argv: list[str] | None = None) -> int:
             terminal.warning(f"No match found for call ID: {args.call_id} in the Excel sheet.")
             
             # AUDIO-FIRST DISCOVERY: Check if the audio file exists even if not in Excel
-            from ingestion.engines.audio_downloader import get_cached_audio_path
             cached_audio = get_cached_audio_path(args.call_id)
             
             if cached_audio.exists():
@@ -83,7 +107,6 @@ def main(argv: list[str] | None = None) -> int:
     terminal.info(f"Matched {len(mapped_df.index)} call(s) across {len(lead_profiles)} lead(s).")
     write_csv_rows(UNMATCHED_LOG_PATH, UNMATCHED_LOG_HEADERS, unmatched_rows)
 
-    manifest_entries: list[dict[str, object]] = []
     with terminal.build_progress() as progress:
         task = progress.add_task("Downloading mapped audio", total=len(mapped_df.index))
         for sequence, mapped_index in enumerate(mapped_df.index, start=1):

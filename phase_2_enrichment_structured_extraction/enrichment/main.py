@@ -32,6 +32,7 @@ from shared.schema_utils import PhaseOutputEntry
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 3 Enrichment")
     parser.add_argument("--call-id", type=str, help="Process only a specific call ID.")
+    parser.add_argument("--audio-id", type=str, help="Process using an existing audio file ID.")
     args = parser.parse_args(argv)
 
     ensure_phase_directories()
@@ -40,9 +41,11 @@ def main(argv: list[str] | None = None) -> int:
 
     discovered_inputs, discovery_warnings = discover_inputs()
 
-    if args.call_id:
-        terminal.info(f"Filtering for specific call ID: {args.call_id}")
-        discovered_inputs = [item for item in discovered_inputs if item.call_id == args.call_id]
+    effective_id = args.audio_id or args.call_id
+    if effective_id:
+        terminal.info(f"Filtering for ID: {effective_id}")
+        discovered_inputs = [item for item in discovered_inputs if item.call_id == effective_id]
+        discovery_warnings = [w for w in discovery_warnings if effective_id in w]
 
     for warning in discovery_warnings:
         terminal.warning(warning)

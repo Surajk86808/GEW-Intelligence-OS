@@ -76,12 +76,16 @@ def ensure_phase_directories() -> None:
     )
 
 
-def discover_input_excel() -> Path:
+def discover_input_excel(silent: bool = False) -> Path:
     if DEFAULT_INPUT_EXCEL.exists():
         return DEFAULT_INPUT_EXCEL
 
     candidates = sorted(path for path in DATA_DIR.glob("*.xlsx") if not path.name.startswith("~$"))
     if candidates:
         return candidates[0]
-    return DEFAULT_INPUT_EXCEL
+        
+    if silent:
+        return DEFAULT_INPUT_EXCEL
+        
+    raise FileNotFoundError(f"No Excel workbook found in {INPUTS_DIR} or {DATA_DIR}. Please provide a master sheet.")
 

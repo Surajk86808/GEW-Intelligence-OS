@@ -1,5 +1,5 @@
 DECISION INTELLIGENCE REPORT: frustrated_pricing_customers
-Query: Show frustrated customers discussing pricing.
+Query: Show frustrated customers discussing pricing. (Context: CALL_0006)
 Confidence: 0.0
 
 [ANSWER]

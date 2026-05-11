@@ -485,7 +485,16 @@ a {
 }
 
 .chart-panel {
-    min-height: 380px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 400px;
+}
+
+.chart-panel canvas {
+    flex: 1;
+    width: 100% !important;
+    min-height: 0; /* Allow flex to shrink if needed */
 }
 
 .stack-column {
@@ -702,11 +711,20 @@ tbody tr:hover {
 }
 
 .mini-chart-card {
-    min-height: 280px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
     padding: 16px;
     border-radius: 22px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.mini-chart-card canvas {
+    flex: 1;
+    width: 100% !important;
+    min-height: 0;
 }
 
 .mini-chart-card h4 {
@@ -959,6 +977,14 @@ tbody tr:hover {
     td {
         padding: 14px 16px;
     }
+
+    .chart-panel {
+        min-height: 320px;
+    }
+
+    .mini-chart-card {
+        min-height: 260px;
+    }
 }
 
 @media (max-width: 560px) {
@@ -975,4 +1001,13 @@ tbody tr:hover {
     .filters-panel {
         padding: 18px;
     }
+
+    .chart-panel {
+        min-height: 260px;
+    }
+
+    .mini-chart-card {
+        min-height: 220px;
+    }
 }
+

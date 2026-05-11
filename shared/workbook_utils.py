@@ -39,3 +39,14 @@ def save_updated_workbook(
         combined_df.to_excel(writer, sheet_name=combined_sheet, index=False)
         calls_df.to_excel(writer, sheet_name=calls_sheet, index=False)
 
+
+def save_csv_rows(output_path: Path, headers: list[str], rows: list[dict[str, object]]) -> None:
+    """Saves a list of dictionaries to a CSV file."""
+    import csv
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=headers, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
+

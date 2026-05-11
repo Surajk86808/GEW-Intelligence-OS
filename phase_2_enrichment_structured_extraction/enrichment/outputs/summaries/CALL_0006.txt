@@ -1,0 +1,28 @@
+VOICE INTELLIGENCE SUMMARY: CALL_0006
+Duration: 36.43 sec
+Transcript Source: phase_2_structured_json
+Primary Intent: online_redirection
+Top Emotions: none_detected
+--------------------------------------------------
+[ENGAGEMENT]
+Engagement Score: 0.77
+Stress Score: 1.0
+Confidence Score: 0.21
+Escalation Detected: False
+
+[SPEAKER METRICS]
+Speaker 1 Talk Ratio: 72%
+Speaker 2 Talk Ratio: 28%
+Interruptions: 44
+Response Latency Avg: 0.72
+
+[SILENCE]
+Longest Silence: 2.14 sec
+Awkward Silences: 0
+High Pressure Pauses: 0
+
+[ACOUSTICS]
+Average Speaking Rate WPM: 161.4
+Pitch Variation: 806.9416
+Energy Fluctuation: 0.048
+--------------------------------------------------

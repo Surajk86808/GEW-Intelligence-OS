@@ -17,21 +17,28 @@ class EmotionEngine:
         self._initialize_model()
 
     def _initialize_model(self) -> None:
-        from transformers import pipeline
-        import torch
+        try:
+            from transformers import pipeline
+            import torch
+            
+            device_name = DEVICE
+            if device_name == "cuda" and not torch.cuda.is_available():
+                device_name = FALLBACK_DEVICE
 
-        device_name = DEVICE
-        if device_name == "cuda" and not torch.cuda.is_available():
-            device_name = FALLBACK_DEVICE
-
-        device_id = 0 if device_name == "cuda" else -1
-        if device_id == 0:
-            self.logger.info(f"Loading emotion model {EMOTION_MODEL_ID} on CUDA")
-        else:
-            self.logger.warning(f"Loading emotion model {EMOTION_MODEL_ID} on CPU fallback")
-        self.pipeline = pipeline("audio-classification", model=EMOTION_MODEL_ID, device=device_id)
+            device_id = 0 if device_name == "cuda" else -1
+            if device_id == 0:
+                self.logger.info(f"Loading emotion model {EMOTION_MODEL_ID} on CUDA")
+            else:
+                self.logger.warning(f"Loading emotion model {EMOTION_MODEL_ID} on CPU fallback")
+            self.pipeline = pipeline("audio-classification", model=EMOTION_MODEL_ID, device=device_id)
+        except ImportError:
+            self.logger.warning(f"PyTorch or Transformers not fully installed. Emotion analysis will be skipped.")
+            self.pipeline = None
 
     def analyze(self, audio: np.ndarray, duration: float) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        if self.pipeline is None:
+            return [], {}
+            
         timeline: list[dict[str, Any]] = []
         chunk_samples = int(CHUNK_LENGTH_SEC * TARGET_SAMPLE_RATE)
         min_chunk_samples = int(MIN_EMOTION_CHUNK_SEC * TARGET_SAMPLE_RATE)

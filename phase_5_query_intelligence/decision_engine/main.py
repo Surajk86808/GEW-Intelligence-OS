@@ -38,6 +38,7 @@ from shared.logging_utils import TerminalUI, append_csv_row
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="GEW Intelligence OS - Phase 6 Decision Intelligence")
     parser.add_argument("--call-id", type=str, help="Filter queries for a specific call ID.")
+    parser.add_argument("--audio-id", type=str, help="Process using an existing audio file ID.")
     args = parser.parse_args(argv)
 
     ensure_phase_directories()
@@ -49,8 +50,9 @@ def main(argv: list[str] | None = None) -> int:
     call_analytics = _read_first(PHASE_5_CALL_ANALYTICS_CANDIDATES, {})
     _ = _read_first(PHASE_5_CHUNK_STORE_CANDIDATES, [])
 
-    if args.call_id:
-        terminal.info(f"Context set for call ID: {args.call_id}")
+    effective_id = args.audio_id or args.call_id
+    if effective_id:
+        terminal.info(f"Context set for ID: {effective_id}")
 
     if not vector_index:
         terminal.warning("No Phase 5 vector index found. Nothing to query.")
@@ -77,9 +79,9 @@ def main(argv: list[str] | None = None) -> int:
             query_name = str(item.get("name", "query")).strip()
             query_text = str(item.get("query", "")).strip()
             
-            # If call-id is provided, inject it into the query context if not present
-            if args.call_id and args.call_id not in query_text:
-                query_text = f"{query_text} (Context: {args.call_id})"
+            # If ID is provided, inject it into the query context if not present
+            if effective_id and effective_id not in query_text:
+                query_text = f"{query_text} (Context: {effective_id})"
                 
             terminal.rule(f"QUERY {query_name}", style="bold blue")
             started_at = time.perf_counter()
@@ -88,8 +90,8 @@ def main(argv: list[str] | None = None) -> int:
                 parsed = query_parser.parse(query_name, query_text)
                 retrieved = retrieval_engine.retrieve(parsed.search_text, parsed.filters)
                 
-                if args.call_id:
-                    retrieved = [item for item in retrieved if item.get("metadata", {}).get("call_id") == args.call_id]
+                if effective_id:
+                    retrieved = [item for item in retrieved if item.get("metadata", {}).get("call_id") == effective_id]
 
                 analytics = analytics_engine.summarize(retrieved)
                 analytics["call_analytics_snapshot"] = _slice_call_analytics(call_analytics, retrieved)
