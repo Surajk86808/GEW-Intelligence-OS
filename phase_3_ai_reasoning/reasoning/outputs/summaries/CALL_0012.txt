@@ -1,5 +1,0 @@
-EXECUTIVE SUMMARY: CALL_0012
-Intent: exploratory
-Lead Quality Score: 37
-Conversion Probability: 0.37
-Strategic Summary: The customer called with a specific, high-intent request for offline coaching for teaching exams in Varanasi. The agent correctly identified that this service is not offered and communicated this clearly. The customer then pivoted to an exploratory interest in online courses. The agent was helpful but missed a key opportunity to actively engage the customer on this new interest and convert the lead. The call ended politely with medium potential for a follow-up regarding online offerings. This interaction highlights a service gap in the offline portfolio for teaching exam preparation.

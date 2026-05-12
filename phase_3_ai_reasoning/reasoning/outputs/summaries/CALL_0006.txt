@@ -1,5 +1,0 @@
-EXECUTIVE SUMMARY: CALL_0006
-Intent: exploratory
-Lead Quality Score: 40
-Conversion Probability: 0.4
-Strategic Summary: This was an exploratory call from a customer interested in online coaching who was incorrectly routed to the offline department. The agent handled the situation effectively by identifying the error and arranging a callback from the correct team. The customer was cooperative and agreed to the follow-up. The primary business risks are the initial call misrouting, which should be investigated, and the agent's minor verbal slip on the callback timeline. The lead is qualified and has high potential for follow-up by the online department.

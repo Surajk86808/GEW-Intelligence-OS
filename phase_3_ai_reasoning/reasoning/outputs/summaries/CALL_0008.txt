@@ -1,5 +1,0 @@
-EXECUTIVE SUMMARY: CALL_0008
-Intent: negative
-Lead Quality Score: 7
-Conversion Probability: 0.07
-Strategic Summary: This is a non-actionable 22-second call containing a single, unintelligible utterance from an unknown speaker. Acoustic analysis indicates extreme stress and escalation, suggesting a highly negative customer experience, a dropped call, or a significant audio quality issue. No business intent can be determined. The call should be flagged for technical review to investigate potential ASR or audio capture problems. No follow-up is possible or recommended.
